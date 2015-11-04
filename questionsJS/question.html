@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en" ng-app="todomvc" scroll data-framework="firebase">
+<head ng-controller="TodoCtrl">
+  <meta charset="utf-8">
+
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- http://stackoverflow.com/questions/1341089/using-meta-tags-to-turn-off-caching-in-all-browsers -->
+  <meta http-equiv="cache-control" content="max-age=0" />
+  <meta http-equiv="cache-control" content="no-cache" />
+  <meta http-equiv="expires" content="0" />
+  <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+  <meta http-equiv="pragma" content="no-cache" />
+
+  <!-- for Facebook sharing -->
+  <meta property="og:url" content="https://comp3111-qroom.firebaseapp.com/" />
+  <meta property="fb:app_id" content="1074795829199506" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Questions Room" />
+  <meta property="og:description" content="Ask your questions here!" />
+  <meta property="og:image" content="favicon.ico" />
+
+  <title>{{roomId}}</title>
+
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+
+  <!-- angular smilies -->
+  <link rel="stylesheet" href="plugins/emoji/dist/angular-smilies-embed.min.css">
+
+  <!-- need this for comlted ones. TODO: can I do this in bootstrap -->
+  <link rel="stylesheet" href="css/main.css">
+
+</head>
+<body ng-controller="TodoCtrl">
+  <!-- navigation bar start -->
+  <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="container">
+
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" >Question Room <span ng-bind="roomId"></span></a>          
+      </div><!-- /.navbar-header -->
+
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse navbar-ex1-collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="./index.html">Main</a></li>
+        </ul>
+      </div><!-- /.navbar-collapse -->        
+    </div><!-- /.navbar-container -->
+
+  </nav>
+  <!-- navigation bar end -->
+
+  <div class="container" id="main-container">
+
+    <!-- Facebook -->
+    <div id="fb-root">
+      <button class='btn btn-success' ng-click="Facebook.login()">Connect with Facebook</button>
+      <div ng-show="Facebook.getAuth()">
+        <h4>Access Token:</h4>
+        <p ng-bind="Facebook.getAuth().accessToken"></p>
+        <button class='btn btn-small' ng-click="Facebook.logout()">Logout</button>
+      </div>
+      <div id='fb-root'></div>
+    </div>
+    <!-- END -->
+
+    <div id="question_box">
+      <!-- tab navigation bar -->
+      <ul class="nav nav-pills" id="tabs">
+        <li class="active"><a data-toggle="tab" href="#tab_post"><i class="fa fa-commenting"></i> Post</a></li>
+        <li><a data-toggle="tab" href="#tab_search"><i class="fa fa-search"></i> Search</a></li>
+      </ul>
+
+      <!-- tab content -->
+      <div class="tab-content">
+        <!-- Post tab -->
+        <div id="tab_post" class="tab-pane fade in active">
+          <form name="todoForm" id="todoForm" ng-submit="addTodo()" ng-init="input.wholeMsg=''">
+            <div style="border: 1px solid #ddd;">
+              <textarea id="new-todo" name="new-todo" class="form-control ng-valid ng-touched ng-dirty ng-valid-parse" focus-on-change="input.wholeMsg" placeholder="Post Question at least 5 letters, add '#tag' at the end as a tag, shift+enter to post" ng-model="input.wholeMsg" autofocus required ng-minlength="5" maxlength="500" style="min-height:100px; resize: vertical; border-style:none none dashed none;"></textarea>  
+              <div>
+                <span smilies-selector="input.wholeMsg" smilies-placement="bottom" smilies-title="Smilies"></span>
+                <button id="btn_post" class="btn btn-primary pull-right" type="submit" ng-disabled="filterWord(input.wholeMsg)||todoForm.$error.minlength||todoForm.$error.required||disableTimeInterval" ng-click="showError = todoForm.$invalid"><i class="fa fa-commenting fa-lg"></i> Ask Question</button> 
+              </div>
+              <div class="clearfix"></div>           
+            </div>                         
+
+            <!-- collapsable list -->
+            <div id="collapse_list" class="panel-collapse collapse">
+              <ul class="list-group">
+                <li class="list-group-item">
+                  <!-- input email address -->
+                  <label class="glyphicon glyphicon-envelope"> Email:</label>
+                  <div ng-init="input.email=''">
+                    <input type="email" name="input" class="form-control ng-valid ng-touched ng-dirty ng-valid-parse" focus-on-change="input.email" ng-model="input.email" autofocus>
+                    <!-- better inside the inputbox -->
+                    <button type="button" class="glyphicon glyphicon-remove-sign" ng-show="input.email!=''" ng-click="input.email=''"></button>
+                  </div>
+                </li>
+                <li class="list-group-item">
+                  upload image
+                  <input id="inputFileToLoad" type="file" onchange="encodeImageFileAsURL();" /> 
+                  <div id="imgTest"></div>
+                </li>
+              </ul>
+            </div>
+          </form>
+          <div class="pull-left">
+            <span ng-style="{visibility: (postTimeCounter>0) && 'visible' || 'hidden'}"><small>Please wait for {{postTimeCounter}}    second to post again...</small></span>
+          </div>
+          <div class="pull-right">
+            <a id="toggle_advanced" data-toggle="collapse" href="#collapse_list"><span class="glyphicon glyphicon-collapse-down"></span> Advanced options</a>
+          </div>
+          <div class="clearfix"></div>
+        </div><!-- /#tab_post -->
+
+        <!-- Search Tab -->
+        <div id="tab_search" class="tab-pane fade">
+          <div class="input-group">
+            <input type="text" id="new-search" class="form-control" placeholder="Search Question" ng-model="input.searchMsg" />
+            <div class="input-group-btn">
+              <button id="btn_reset" class="btn btn-danger" ng-click="input.wholeMsg='';input.email='';input.searchMsg='';input.searchEmail=''">Reset <i class="fa fa-commenting fa-lg"></i></button>
+            </div>
+          </div><!-- /input-group -->
+          <!-- search by email -->
+          <div name="searchByMail">
+            <label>Email:
+              <div ng-init="input.searchMail=''">
+                <input type="email" name="input" class="form-control ng-valid ng-touched ng-dirty ng-valid-parse" focus-on-change="input.searchEmail" placeholder="Manage your posts" ng-model="input.searchEmail" style="width:300px" autofocus/>
+              </div>
+            </label>
+            </div>
+        </div>
+      </div>
+    </div><!-- /#question-box -->
+
+    <!-- Error messages -->
+    <div class="alert alert-danger fade in" role="alert" ng-show="todoForm.$error.required && showError"><a class="close" data-dismiss="alert" aria-label="close" ng-click="submitted = false">&times;</a> <strong>Error!</strong> Your question cannot be empty! </div>
+    <div class="alert alert-danger fade in" role="alert" ng-show="todoForm.$error.email"><a class="close" data-dismiss="alert" aria-label="close" ng-click="submitted = false">&times;</a> <strong>Error!</strong> Invalid email! </div>
+    <div class="alert alert-danger fade in" role="alert" ng-show="filterWord(input.wholeMsg)"><a class="close" data-dismiss="alert" aria-label="close" ng-click="submitted = false">&times;</a> <strong>Error!</strong> No foul word! </div>
+
+    <div class="list-group" id="todo-list" >
+      <div class="list-group-item" ng-repeat="todo in todos | filter:{'wholeMsg':input.searchMsg} | filter:{'email':input.searchEmail}:strict | questionFilter:maxQuestion" ng-class="{completed: todo.completed, editing: todo == editedTodo}" ng-hide="todo.echo < -15">
+        <div class="list-group-item-heading" ng-switch on="todo.head.slice(-1)">
+          <div id="todo-sign" ng-hide="editing" class="question-heading-sign">           
+            <span ng-class="{'badge badge-success': todo.echo > 0, 'badge': todo.echo == 0, 'badge badge-danger': todo.echo < 0}">{{todo.echo}}</span>
+            <span class="label label-danger" ng-show="todo.newQuestion">New</span>
+            <!-- switch -->
+            <span ng-switch-when="?" class="glyphicon glyphicon-question-sign"></span>
+            <span ng-switch-when="!" class="glyphicon glyphicon-info-sign"></span>
+            <span id="tag-label" class="label label-info" ng-show="todo.tags">{{todo.tags}}</span>
+            <small class="text-muted"> Asked {{timeAgo(todo.timestamp)}}</small>
+            <a ng-hide="editing" href="https://www.facebook.com/dialog/share?app_id=145634995501895&display=popup&href=https%3A%2F%2Fdevelopers.facebook.com%2Fdocs%2F&redirect_uri=https%3A%2F%2Fdevelopers.facebook.com%2Ftools%2Fexplorer" target="_blank" class="btn btn-primary btn-xs pull-right">Share to Facebook
+          </a>
+          </div>          
+          <td>
+            <!-- editing box, not fully implemented-->
+
+            <h4 ng-hide="editing" ng-class="{completed: todo.completed}" ng-bind-html="todo.head | smilies" class="question-heading"></h4>
+            <input ng-show="editing" type="text" id="edit-todo" name="edit-todo" class="form-control ng-valid ng-touched ng-dirty ng-valid-parse" ng-model="input.editMsg" style="height:50px" autofocus ng-minlength="5"/>
+            <span ng-show="editing" class="input-group-addon" smilies-selector="input.editMsg" smilies-placement="bottom" smilies-title="Smilies"></span>
+
+            <!-- END -->
+          </td>          
+        </div>
+
+        <!-- use $sce.trustAsHtml to show trused html code, use ng-bind to show escaped html -->
+        <!-- Now the code is santized : Sanitizes an html string by stripping all potentially dangerous tokens; only keep <b><i>etc. To be tested -->
+
+        <p class="list-group-item-text"><span ng-bind-html="todo.trustedDesc | smilies"></span></p>
+     
+        <br>
+        
+        <div id="likeContainer">
+          <div class="btn-group btn-group-xs" role="group">
+            <button ng-hide="editing" type="button" ng-class="{'btn btn-success': $storage[todo.$id]=='echoed', 'btn btn-default': $storage[todo.$id]!='echoed'}" ng-click="addEcho(todo)"><i class="fa fa-thumbs-o-up"></i> Like
+            </button>
+            <button ng-hide="editing" type="button" ng-class="{'btn btn-danger': $storage[todo.$id]=='d_echoed', 'btn btn-default': $storage[todo.$id]!='d_echoed'}" ng-click="subEcho(todo)"><i class="fa fa-thumbs-o-down"></i> Dislike
+            </button>
+          </div>
+       
+          <button class="btn btn-default" ng-hide="!editing" ng-click="doneEditing(todo);editing = false">
+            <span class="glyphicon glyphicon-floppy-saved" aria-hidden="true"> Save</span>
+          </button>
+          &nbsp;
+          <button ng-hide="editing" type="button" class="btn btn-default btn-xs">
+            <span class="glyphicon glyphicon-send" aria-hidden="true"></span> Reply
+          </button>
+          &nbsp;
+          <button class="btn btn-default" ng-hide="!editing" ng-click="editing = false">
+            <span class="glyphicon glyphicon-floppy-remove" aria-hidden="true"> Cancel</span>
+          </button>
+          &nbsp; 		
+          <button class="btn btn-default" ng-hide="!editing" ng-click="removeTodo(todo); editing=false">
+            <span class="glyphicon glyphicon-trash" aria-hidden="true"> Delete</span>
+          </button>
+
+          <!-- after entering the correct email, editing is available -->
+          <div class="dropdown" ng-hide="editing">
+          <br>
+            <button class="btn btn-primary btn-xs dropdown-toggle" type="button" data-toggle="dropdown" ng-hide="input.searchEmail!=todo.email || todo.email==''">Manage your post
+              <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="glyphicon glyphicon-pencil" ng-click="editing = true;editTodo(todo)" ng-hide="editing"> Edit</a></li>
+              <li><a class="glyphicon glyphicon-repeat" ng-click="revertEditing(todo)" ng-hide="editing"> Revert</a></li>
+              <li><a class="glyphicon glyphicon-trash" ng-click="removeTodo(todo)"> Delete</a></li>
+            </ul>
+          </div>
+        </div> 
+      </div>
+    </div><!-- /#main-container -->
+
+    <!-- jquery -->
+    <script src="js/lib/jquery.min.js"></script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="js/lib/bootstrap.min.js"></script>
+
+    <!-- Autolink from https://github.com/gregjacobs/Autolinker.js> -->
+    <script src="js/lib/Autolinker.min.js"></script>
+
+    <!-- Angular 1.4.7 -->
+    <script src="js/lib/angular.min.js"></script>
+    <script src="js/lib/angular-sanitize.min.js"></script>
+
+    <!-- Ng storage 0.3.6  -->
+    <script src="js/lib/ngStorage.min.js"></script>
+
+    <!-- Firebase -->
+    <script src="js/lib/firebase.js"></script>
+    <script src="js/lib/angularfire.min.js"></script>
+
+    <script src="js/main.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/filters/questionFilter.js"></script>
+    <script src="js/controllers/todoCtrl.js"></script>
+    <script src="js/directives/todoFocus.js"></script>
+    <script src="js/directives/todoBlur.js"></script>
+    <script src="js/directives/todoEscape.js"></script>
+
+    <!-- UI bootstrap (angular)-->
+    <script src="js/lib/ui-bootstrap-tpls-0.14.3.min.js"></script>
+
+    <!-- angular smilies -->
+    <script src="plugins/emoji/dist/angular-smilies.js"></script>
+
+    <script type='text/javascript'>
+    function encodeImageFileAsURL(){
+
+      var filesSelected = document.getElementById("inputFileToLoad").files;
+      if (filesSelected.length > 0)
+      {
+        var fileToLoad = filesSelected[0];
+
+        var fileReader = new FileReader();
+
+        fileReader.onload = function(fileLoadedEvent) {
+            var srcData = fileLoadedEvent.target.result; // <--- data: base64
+
+            var newImage = document.createElement('img');
+            newImage.src = srcData;
+
+            document.getElementById("imgTest").innerHTML = newImage.outerHTML;
+            alert(document.getElementById("imgTest").innerHTML);
+            console.log("Converted Base64 version is "+document.getElementById("imgTest").innerHTML);
+          }
+          fileReader.readAsDataURL(fileToLoad);
+        }
+      }
+    </script>
+
+    <div id="fb-root"></div>
+
+</body>
+</html>

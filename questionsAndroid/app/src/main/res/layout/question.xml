@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:weightSum="1"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:id="@+id/questionLinearLayout"
+        android:layout_weight="0.03">
+
+        <TextView
+            android:id="@+id/echo_count"
+            android:layout_width="25dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="5dp"
+            android:gravity="center_vertical|center_horizontal"
+            android:textColor="#7d7d7d"
+            android:textSize="15sp"
+            />
+
+        <ImageButton
+            android:id="@+id/echo"
+            android:src="@drawable/updown"
+            android:layout_width="30dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="5dp"
+            android:gravity="center_vertical"
+            android:background="#fafafa"
+            />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/head_desc"
+                android:layout_width="230dp"
+                android:layout_height="40dp"
+                android:gravity="center_vertical"
+                android:layout_marginLeft="5dp" />
+
+            <TextView
+                android:id="@+id/timestamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                />
+
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/shareButton"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/sharing"
+            />
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        >
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/image"
+            android:layout_gravity="center_vertical"
+            android:adjustViewBounds="true"
+            android:clickable="false" />
+    </FrameLayout>
+
+</LinearLayout>

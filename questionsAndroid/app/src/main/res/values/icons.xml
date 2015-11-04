@@ -1,0 +1,31 @@
+<resources>
+    <string name="fa_icon_areachart">&#xf1fe;</string>
+    <string name="fa_icon_piechart">&#xf200;</string>
+    <string name="fa_icon_linechart">&#xf201;</string>
+    <string name="fa_ambulance">&#xf0f9;</string>
+    <string name="fa_android">&#xf17b;</string>
+    <string name="fa_apple">&#xf179;</string>
+    <string name="fa_angellist ">&#xf209;</string>
+    <string name="fa_arrow_right">&#xf061;</string>
+    <string name="fa_arrow_left ">&#xf060;]</string>
+    <string name="fa_arrow_up">&#xf062;]</string>
+    <string name="fa_arrow_down ">&#xf063;</string>
+    <string name="fa_ban">&#xf05e;</string>
+    <string name="fa_birthday_cake">&#xf1fd;</string>
+    <string name="fa_bitbucket">&#xf171;</string>
+    <string name="fa_bell_o">&#xf0a2;</string>
+    <string name="fa_bicycle">&#xf206;</string>
+    <string name="fa_book">&#xf02d;</string>
+    <string name="fa_bus">&#xf207;</string>
+    <string name="fa_child">&#xf1ae;</string>
+    <string name="fa_comment_o">&#xf0e5;</string>
+    <string name="fa_diamond">&#xf219;</string>
+    <string name="fa_dollar">&#xf155;</string>
+    <string name="fa_github_alt">&#xf113;</string>
+    <string name="fa_graduation_cap">&#xf19d;</string>
+    <string name="fa_heart">&#xf004;</string>
+    <string name="fa_heart_o">&#xf08a;</string>
+    <string name="fa_lock">&#xf023;</string>
+    <string name="fa_meh_o">&#xf11a;</string>
+    <string name="fa_thumbs_o_up">&#xf087;</string>
+</resources>

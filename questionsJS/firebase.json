@@ -1,0 +1,9 @@
+{
+  "firebase": "comp3111-qroom",
+  "public": ".",
+  "ignore": [
+    "firebase.json",
+    "**/.*",
+    "**/node_modules/**"
+  ]
+}
